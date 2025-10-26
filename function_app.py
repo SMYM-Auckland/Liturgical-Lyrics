@@ -1,10 +1,12 @@
 import azure.functions as func
+from azure.functions.decorators import FunctionApp
 import json
 import re
 from bs4 import BeautifulSoup
 import requests
 
-app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
+# ✅ Define the FunctionApp properly for Azure
+app = FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
 WAYBACK_BASE = "https://web.archive.org/web/20250831152901"
 
