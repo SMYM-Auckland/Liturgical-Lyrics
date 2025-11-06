@@ -24,8 +24,15 @@ def extract_manglish_lyrics_and_title(html: str):
     soup = BeautifulSoup(html, "html.parser")
 
     # Find the song title
-    title_tag = soup.find("a", id="SongTitleName")
-    title = title_tag.get_text(strip=True) if title_tag else "Untitled"
+    title_tag = soup.find("a", title="Song Name")
+    if title_tag:
+        for span in title_tag.find_all("span"):
+            span.decompose()
+            title = title_tag.get_text(strip=True)
+    else:
+        fallback = soup.find(["h1", "title"])
+        title = fallback.get_text(strip=True) if fallback else "Untitled"
+
 
     # Extract Manglish lyrics
     spans = soup.find_all("span", class_="spanManglish MangFont")
@@ -55,7 +62,6 @@ def extract_manglish_lyrics_and_title(html: str):
 
     return title, slides
 
-
 # 🔹 Main Azure Function Endpoint
 @app.function_name(name="create_pptx_from_lyrics")
 @app.route(route="create_pptx_from_lyrics", methods=["POST"])
@@ -84,6 +90,7 @@ def create_pptx_from_lyrics(req: func.HttpRequest) -> func.HttpResponse:
             "slide_count": len(slides),
             "slides": slides
         }
+
 
         return func.HttpResponse(
             json.dumps(result, ensure_ascii=False, indent=2),
